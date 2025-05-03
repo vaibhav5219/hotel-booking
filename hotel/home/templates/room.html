@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Rooms</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <script>
+        function toggleAddForm() {
+            document.getElementById("addRoomForm").classList.toggle("hidden");
+        }
+
+        function toggleEditForm(id) {
+            const form = document.getElementById(`editRoomForm-${id}`);
+            form.classList.toggle("hidden");
+        }
+    </script>
+</head>
+<body class="bg-gray-100 p-6">
+    <h1 class="text-3xl font-bold mb-4">Rooms</h1>
+
+    <button onclick="toggleAddForm()" class="mb-4 bg-blue-500 text-white px-4 py-2 rounded">Add Room</button>
+
+    <!-- Add Room Form -->
+    <div id="addRoomForm" class="hidden bg-white p-4 rounded shadow mb-6">
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="room_name" placeholder="Room Name" class="border p-2 w-full mb-2" required>
+            <input type="text" name="room_number" placeholder="Room Number" class="border p-2 w-full mb-2" required>
+            <input type="number" name="room_price" placeholder="Room Price" class="border p-2 w-full mb-2" required>
+            <textarea name="description" placeholder="Description" class="border p-2 w-full mb-2"></textarea>
+            <input type="text" name="mobile" placeholder="Mobile" class="border p-2 w-full mb-2" required>
+            <select name="hotel" class="border p-2 w-full mb-2">
+                {% for hotel in hotels %}
+                    <option value="{{ hotel.uid }}">{{ hotel.hotel_name }}</option>
+                {% endfor %}
+            </select>
+            <label class="block mb-1">Amenities:</label>
+            <div class="grid grid-cols-2 gap-2 mb-2">
+                {% for amenity in amenities %}
+                    <label><input type="checkbox" name="amenities" value="{{ amenity.uid }}"> {{ amenity.amenity_name }}</label>
+                {% endfor %}
+            </div>
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Save Room</button>
+        </form>
+    </div>
+
+    <!-- Room Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {% for room in rooms %}
+            <div class="bg-white p-4 rounded shadow">
+                <h2 class="text-xl font-semibold">{{ room.room_name }}</h2>
+                <p>Number: {{ room.room_number }}</p>
+                <p>Price: ₹{{ room.room_price }}</p>
+                <p>{{ room.description }}</p>
+                <p>Mobile: {{ room.mobile }}</p>
+                <p><strong>Hotel:</strong> {{ room.hotel.hotel_name }}</p>
+                <p><strong>Amenities:</strong> {{ room.amenities.all|join:", " }}</p>
+
+                <div class="mt-2">
+                    <strong>Images:</strong>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        {% for image in room.room_images.all %}
+                            <img src="{{ image.images.url }}" class="w-full h-32 object-cover rounded" />
+                        {% empty %}
+                            <p>No images</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <button onclick="toggleEditForm('{{ room.uid }}')" class="mt-2 bg-yellow-500 text-white px-2 py-1 rounded">Edit</button>
+
+                <!-- Edit Room Form -->
+                <form id="editRoomForm-{{ room.uid }}" class="hidden mt-4" method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="room_id" value="{{ room.uid }}">
+                    <input type="text" name="room_name" value="{{ room.room_name }}" class="border p-2 w-full mb-2" required>
+                    <input type="text" name="room_number" value="{{ room.room_number }}" class="border p-2 w-full mb-2" required>
+                    <input type="number" name="room_price" value="{{ room.room_price }}" class="border p-2 w-full mb-2" required>
+                    <textarea name="description" class="border p-2 w-full mb-2">{{ room.description }}</textarea>
+                    <input type="text" name="mobile" value="{{ room.mobile }}" class="border p-2 w-full mb-2" required>
+
+                    <select name="hotel" class="border p-2 w-full mb-2">
+                        {% for hotel in hotels %}
+                            <option value="{{ hotel.uid }}" {% if room.hotel.uid == hotel.uid %}selected{% endif %}>{{ hotel.hotel_name }}</option>
+                        {% endfor %}
+                    </select>
+
+                    <label class="block mb-1">Amenities:</label>
+                    <div class="grid grid-cols-2 gap-2 mb-2">
+                        {% for amenity in amenities %}
+                            <label>
+                                <input type="checkbox" name="amenities" value="{{ amenity.uid }}"
+                                       {% if amenity in room.amenities.all %}checked{% endif %}>
+                                {{ amenity.amenity_name }}
+                            </label>
+                        {% endfor %}
+                    </div>
+                    <button type="submit" class="bg-green-600 text-white px-4 py-2 rounded">Update</button>
+                </form>
+
+                <!-- Upload Room Image Form -->
+                <form method="post" enctype="multipart/form-data" action="/upload-room-image" class="mt-4">
+                    {% csrf_token %}
+                    <input type="hidden" name="room_id" value="{{ room.uid }}">
+                    <input type="file" name="image" required class="mb-2">
+                    <button type="submit" class="bg-purple-500 text-white px-2 py-1 rounded">Upload Image</button>
+                </form>
+            </div>
+        {% endfor %}
+    </div>
+</body>
+</html>

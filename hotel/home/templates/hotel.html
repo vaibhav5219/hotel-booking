@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hotel</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 p-6">
+    <h1 class="text-3xl font-bold mb-4">My Hotel</h1>
+
+    <!-- Hotel Form (Add or Edit) -->
+    <div class="bg-white p-4 rounded shadow mb-6">
+        <form method="post">
+            {% csrf_token %}
+            <input type="text" name="hotel_name" placeholder="Hotel Name" value="{{ hotel.hotel_name }}" class="border p-2 w-full mb-2" required>
+            <textarea name="description" placeholder="Description" class="border p-2 w-full mb-2">{{ hotel.description }}</textarea>
+            <input type="text" name="mobile" placeholder="Mobile" value="{{ hotel.mobile }}" class="border p-2 w-full mb-2" required>
+            <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">
+                {% if hotel %} Update Hotel {% else %} Save Hotel {% endif %}
+            </button>
+        </form>
+    </div>
+
+    {% if hotel %}
+    <!-- Display Hotel Info -->
+    <div class="bg-white p-4 rounded shadow">
+        <h2 class="text-xl font-semibold">{{ hotel.hotel_name }}</h2>
+        <p>{{ hotel.description }}</p>
+        <p>Mobile: {{ hotel.mobile }}</p>
+
+        <div class="mt-2">
+            <strong>Images:</strong>
+            <div class="grid grid-cols-2 gap-2 mt-2">
+                {% for image in hotel.images.all %}
+                    <img src="{{ image.images.url }}" class="w-full h-32 object-cover rounded" />
+                {% empty %}
+                    <p>No images</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Upload Hotel Image Form -->
+        <form method="post" enctype="multipart/form-data" action="/upload-hotel-image" class="mt-4">
+            {% csrf_token %}
+            <input type="hidden" name="hotel_id" value="{{ hotel.uid }}">
+            <input type="file" name="image" required class="mb-2">
+            <button type="submit" class="bg-purple-500 text-white px-2 py-1 rounded">Upload Image</button>
+        </form>
+    </div>
+    {% endif %}
+</body>
+</html>

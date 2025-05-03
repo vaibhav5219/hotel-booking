@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+
+{%  block start %}
+
+<!-- jumbotron and nav -->
+<section class="colorful jumbotron mb-0" role="banner">
+    <nav class="navbar navbar-expand-lg justify-content-between navbar-dark" role="navigation">
+        <div class="navbar-brand">
+            <a href="index.html">Hotel Spoof
+                <em>.</em>
+            </a>
+        </div>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false"
+            aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+    </nav>
+
+    <!-- Hotel Image Carousel -->
+    <div id="hotelCarousel" class="carousel slide mt-3" data-bs-ride="carousel" data-bs-interval="3000">
+        <div class="carousel-inner" style="max-height: 400px;">
+        {% for hotel in hotels_objs %}
+            {% for image in hotel.images.all %}
+            <div class="carousel-item {% if forloop.parentloop.first and forloop.first %}active{% endif %}">
+                <img src="{{ image.images.url }}" class="d-block w-100" style="height: 250px; object-fit: cover;" alt="Hotel Image">
+            </div>
+            {% endfor %}
+        {% endfor %}
+        </div>
+    
+        <button class="carousel-control-prev" type="button" data-bs-target="#hotelCarousel" data-bs-slide="prev">
+        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#hotelCarousel" data-bs-slide="next">
+        <span class="carousel-control-next-icon" aria-hidden="true"></span>
+        <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+  
+  
+    <!-- Hotel Details -->
+    <div class="container mt-4 mb-4">
+        <div class="row text-white">
+        {% for hotel in hotels_objs %}
+            <div class="col-md-12 text-center">
+                <h2>{{ hotel.hotel_name }}</h2>
+                <p class="text-muted">{{ hotel.description }}</p>
+                {% comment %} <p><strong>Contact:</strong> {{ hotel.mobile }}</p> {% endcomment %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+  
+</section>
+
+<section class="search-container mb-5 pb-5">
+    <div class="container">
+        <div class="row">
+            {% comment %} <div class="col-lg-3">
+                <div class="row my-3">
+                </div>
+                <div class="row mt-2 justify-content-between">
+                    <div class="filter-card">
+                        <h5>Filter</h5>
+                        <form action="#">
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    <label for="mintopay">Check in</label>
+                                    <p>
+                                        <input type="date" name="checkin" id="checkin" class="form-control">
+                                    </p>
+                                </div>
+                                <div class="col-md-12">
+                                    <label for="maxtopay">Check out</label>
+                                    <p>
+                                        <input type="date" name="checkout" id="checkout" class="form-control">
+                                    </p>
+                                </div>
+                            </div>
+                           
+                            <div class="row form-group">
+                                <div class="col-md-12">
+                                    <input type="submit" class="btn btn-primary btn-block" value="Limit">
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+            </div> {% endcomment %}
+
+            {% comment %} <div class="col-lg-9  px-4 mb-5">
+                <form>
+                <div class="row mt-3">
+                    <div class="col-md-4">
+                    <div class="form-inline">
+                        <label class="" for="exampleFormControlSelect1">Sort by</label>
+                        <select class="form-control" name="sort_by" id="exampleFormControlSelect1">
+                            <option value="">Recommended</option>
+                            <option {% if sort_by == 'ASC' %} selected {%endif %} value="ASC">ASC</option>
+                            <option {% if sort_by == 'DSC' %} selected {%endif %} value="DSC">DSC</option>
+                           
+                        </select>
+                    </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-inline">
+                            <label class="" for="exampleFormControlSelect1">Search</label>
+                            <input name="search" class="form-control" value="{{search}}" placeholder="Search"> 
+                        </div>
+
+                    </div>
+                    <div class="col-md-4">
+                        <div class="form-inline">
+                           <label class="" for="exampleFormControlSelect1">Amenities</label>
+                            <select name="amenities" class="form-control" multiple>
+                            <option value="">Choose</option>
+                            {% for amenities_obj in amenities_objs %}
+                            <option {% if amenities_obj.amenity_name in amenities  %} selected {%endif%}value="{{amenities_obj.amenity_name}}">{{amenities_obj.amenity_name}}</option>
+                                {% endfor %}
+                        </select>
+                        </div>
+
+                    </div>
+                    <div class="col-md-4">
+                     
+                            <button style="margin-top: 30px;" type="submit" class="btn btn-success">Find</button>
+                        </div>
+                </div>
+                </form>
+                
+                {% comment %} {% for rooms_obj in rooms_objs %}
+                <div class="row search-card-result">
+                    <div class="col-md-3">
+                    <a href="/hotel-detail/{{rooms_obj.uid}}">
+                        <img class="img-fluid" src="/media/{{rooms_obj.room_images.first.images}}" alt="Card image cap">
+                    
+                    </a></div>
+               
+                    <div class="col-md-5">
+                        <h5>{{rooms_obj.hotel_name}}</h5>
+                        
+                        <p>
+                            {{rooms_obj.description|truncatechars:150}}
+                        </p>
+                        <p>
+                            {%for amenitie in rooms_obj.amenities.all %}
+                            <b>{{amenitie.amenity_name}}</b>,
+                            {% endfor %}
+                        </p>
+                        
+                    </div>
+                    <div class="col-md-2 border-left text-center more-offers">
+                        
+                        <p>Place.com</p>
+                        <p>${{rooms_obj.hotel_price}}</p>
+                        <p>Room count</p>
+                        <p>{{rooms_obj.room_count}}</p>
+                    </div>
+                    <div class="col-md-2 border-left text-center more-offers">
+                       
+                        <div class="btn btn-success">View deal </div>
+                    </div>
+                </div>
+                {% endfor %}                
+            </div> {% endcomment %}
+            
+            <!-- Remove col-lg-9 and wrap grid in full-width div -->
+            <div class="container mt-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {% for room in rooms_objs %}
+                <div class="bg-white rounded-lg shadow-md overflow-hidden">
+                    <img class="w-full max-h-40 object-cover" style="object-fit: cover;" src="/media/{{ room.room_images.first.images }}" alt="Room image">
+                    <div class="p-4">
+                        <h2 class="text-lg font-semibold mb-2">{{ room.room_name }}</h2>
+                        <p class="text-gray-600 mb-1">Room No: {{ room.room_number }}</p>
+                        <p class="text-gray-700 font-bold mb-2">Price: ₹{{ room.room_price }}</p>
+                        <p class="text-sm text-gray-500 mb-2">{{ room.description }}</p>
+                        <p class="text-sm text-gray-500 mb-2">Mobile: {{ room.mobile }}</p>
+            
+                        <div class="mb-2">
+                            <strong class="text-sm">Amenities:</strong>
+                            <ul class="list-disc list-inside text-sm text-gray-600">
+                                {% for amenity in room.amenities.all %}
+                                <li>{{ amenity.amenity_name }}</li>
+                                {% empty %}
+                                <li>No amenities listed</li>
+                                {% endfor %}
+                            </ul>
+                        </div>
+                        <div>
+                            <a href="https://wa.me/{{ room.mobile }}?text={{ 'Hi, I am interested in booking room ' | add:room.room_name | add:' (Room No: ' | add:room.room_number | add:'). Is it available?' | urlencode }}"
+                                target="_blank"
+                                class="flex items-center justify-center bg-green-500 text-white px-4 py-2 mt-2 rounded hover:bg-green-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-whatsapp" viewBox="0 0 16 16">
+                                    <path d="M13.601 2.326A7.85 7.85 0 0 0 7.994 0C3.627 0 .068 3.558.064 7.926c0 1.399.366 2.76 1.057 3.965L0 16l4.204-1.102a7.9 7.9 0 0 0 3.79.965h.004c4.368 0 7.926-3.558 7.93-7.93A7.9 7.9 0 0 0 13.6 2.326zM7.994 14.521a6.6 6.6 0 0 1-3.356-.92l-.24-.144-2.494.654.666-2.433-.156-.251a6.56 6.56 0 0 1-1.007-3.505c0-3.626 2.957-6.584 6.591-6.584a6.56 6.56 0 0 1 4.66 1.931 6.56 6.56 0 0 1 1.928 4.66c-.004 3.639-2.961 6.592-6.592 6.592m3.615-4.934c-.197-.099-1.17-.578-1.353-.646-.182-.065-.315-.099-.445.099-.133.197-.513.646-.627.775-.114.133-.232.148-.43.05-.197-.1-.836-.308-1.592-.985-.59-.525-.985-1.175-1.103-1.372-.114-.198-.011-.304.088-.403.087-.088.197-.232.296-.346.1-.114.133-.198.198-.33.065-.134.034-.248-.015-.347-.05-.099-.445-1.076-.612-1.47-.16-.389-.323-.335-.445-.34-.114-.007-.247-.007-.38-.007a.73.73 0 0 0-.529.247c-.182.198-.691.677-.691 1.654s.71 1.916.81 2.049c.098.133 1.394 2.132 3.383 2.992.47.205.84.326 1.129.418.475.152.904.129 1.246.08.38-.058 1.171-.48 1.338-.943.164-.464.164-.86.114-.943-.049-.084-.182-.133-.38-.232"/>
+                                </svg>
+                                <span class="ml-2"> Book Now </span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
