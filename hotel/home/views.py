@@ -22,9 +22,10 @@ def check_booking(start_date, end_date ,uid , room_count):
 
 
 def home(request):
-    hotel_name = 'Shri Vishnu Aditya Lakshmi Pg For Gents'
+    hotel_name = None # 'Shri Vishnu Aditya Lakshmi Pg For Gents'
     amenities_objs = Amenities.objects.all()
     hotels_objs = Hotel.objects.filter(hotel_name = hotel_name)
+    hotels_objs = Hotel.objects.all() if not hotels_objs else Hotel.objects.all()
     # hotel_images = HotelImages.objects.filter(hotel=hotels_objs.first())
     rooms_objs = Room.objects.filter(hotel = hotels_objs.first())
     sort_by = request.GET.get('sort_by')
