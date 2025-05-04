@@ -21,60 +21,32 @@ def check_booking(start_date, end_date ,uid , room_count):
     return True
 
 
-def home(request):
-    hotel_name = None # 'Shri Vishnu Aditya Lakshmi Pg For Gents'
+def home(request, id=None):
+    hotel_name = None
+    if id is not None:
+        hotels_objs = Hotel.objects.filter(pk = str(id))
+    else:
+        hotels_objs = [Hotel.objects.all().first()]
+    print(id)
+    print(hotels_objs)
     amenities_objs = Amenities.objects.all()
-    hotels_objs = Hotel.objects.filter(hotel_name = hotel_name)
-    hotels_objs = Hotel.objects.all() if not hotels_objs else Hotel.objects.all()
-    # hotel_images = HotelImages.objects.filter(hotel=hotels_objs.first())
-    rooms_objs = Room.objects.filter(hotel = hotels_objs.first())
+    
+    rooms_objs = Room.objects.filter(hotel = hotels_objs[0])
+    
     sort_by = request.GET.get('sort_by')
     search = request.GET.get('search')
     amenities = request.GET.getlist('amenities')
     print(amenities)
-    if sort_by:
-        if sort_by == 'ASC':
-            hotels_objs = hotels_objs.order_by('hotel_price')
-        elif sort_by == 'DSC':
-            hotels_objs = hotels_objs.order_by('-hotel_price')
+    # if sort_by:
+    #     if sort_by == 'ASC': hotels_objs = hotels_objs.order_by('hotel_price')
+    #     elif sort_by == 'DSC': hotels_objs = hotels_objs.order_by('-hotel_price')
 
-    if search:
-        hotels_objs = hotels_objs.filter(
-            Q(hotel_name__icontains = search) |
-            Q(description__icontains = search) )
-
-    if len(amenities):
-        hotels_objs = hotels_objs.filter(amenities__amenity_name__in = amenities).distinct()
+    # if search: hotels_objs = hotels_objs.filter( Q(hotel_name__icontains = search) | Q(description__icontains = search) )
+    # if len(amenities): hotels_objs = hotels_objs.filter(amenities__amenity_name__in = amenities).distinct()
 
     context = {'amenities_objs' : amenities_objs , 'hotels_objs' : hotels_objs , 'sort_by' : sort_by 
                 , 'search' : search , 'amenities' : amenities, 'rooms_objs' : rooms_objs, }
     return render(request , 'home.html', context)
-    
-# def hotel(request):
-#     if request.method == 'GET':
-#         amenities_objs = Amenities.objects.all()
-#         hotels_objs = Hotel.objects.all()
-#         sort_by = request.GET.get('sort_by')
-#         search = request.GET.get('search')
-#         amenities = request.GET.getlist('amenities')
-#         print(amenities)
-#         if sort_by:
-#             if sort_by == 'ASC':
-#                 hotels_objs = hotels_objs.order_by('hotel_price')
-#             elif sort_by == 'DSC':
-#                 hotels_objs = hotels_objs.order_by('-hotel_price')
-
-#         if search:
-#             hotels_objs = hotels_objs.filter(
-#                 Q(hotel_name__icontains = search) |
-#                 Q(description__icontains = search) )
-
-#         if len(amenities):
-#             hotels_objs = hotels_objs.filter(amenities__amenity_name__in = amenities).distinct()
-
-#         context = {'amenities_objs' : amenities_objs , 'hotels_objs' : hotels_objs , 'sort_by' : sort_by 
-#         , 'search' : search , 'amenities' : amenities}
-#         return render(request , 'hotel.html' ,context)
 
 
 @login_required(login_url="/login")
@@ -199,3 +171,10 @@ def upload_room_image(request):
             room = Room.objects.get(pk=room_id)
             RoomImages.objects.create(room=room, images=image)
     return redirect('room')
+
+def index(request):
+    hotels = Hotel.objects.all()
+    context = {
+        'hotels' : hotels
+    }
+    return render(request, 'index.html', context)
